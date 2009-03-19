@@ -6,18 +6,19 @@ from cocos.scene import Scene
 from cocos import menu, layer
 
 
-class MenuScene(Scene):
+class MenuScene(Scene):    
     def __init__(self):
-        """Creates a new menu scene."""
-        mplayer = layer.MultiplexLayer(
-            MainMenu(),
-            OptionsMenu()
-        )
+        """Creates a new menu scene."""        
+        super(self.__class__, self).__init__()
         
-        super(self.__class__, self).__init__(mplayer)
+        self.add(layer.MultiplexLayer(
+            MainMenu(),
+            NewGameMenu(),
+            OptionsMenu()
+        ))
 
 
-class MainMenu(menu.Menu):
+class MainMenu(menu.Menu):    
     def __init__(self):
         """Creates the main menu for the game."""
         super(self.__class__, self).__init__('Tank Battle')
@@ -25,22 +26,55 @@ class MainMenu(menu.Menu):
         items = [
             menu.MenuItem('New Game', self.on_new_game),
             menu.MenuItem('Options', self.on_options),
-            menu.MenuItem('Quit', self.on_quit)
+            menu.MenuItem('Quit', self.on_quit_button)
         ]
         
         self.create_menu(items, menu.shake(), menu.shake_back())
     
     def on_new_game(self):
         """Called when the user selects 'New Game'."""
-        pass
+        self.parent.switch_to(1)
     
     def on_options(self):
         """Called when the user selects 'Options'."""
-        self.parent.switch_to(1)
+        self.parent.switch_to(2)
+    
+    def on_quit_button(self):
+        """Called when the user selects 'Quit'. Quits the game."""
+        sys.exit()
+        
+    def on_quit(self):
+        """Called when the user presses ESC. This prevents the game from
+        quitting when pressing ESC in the main menu."""
+        pass
+
+
+class NewGameMenu(menu.Menu):
+    # TODO: implement
+    def __init__(self):
+        """Initializes the new game menu."""
+        super(self.__class__, self).__init__('New Game')
+        
+        items = [
+            menu.EntryMenuItem('Server:', self.on_server_text, ''),
+            menu.MenuItem('Start', self.on_start)
+        ]
+        
+        self.create_menu(items, menu.shake(), menu.shake_back())
+    
+    def on_server_text(self, text):
+        """Called when the text is typed in the 'Server' field."""
+        print text
+    
+    def on_start(self):
+        """Called when start is selected."""
+        # TODO: do something useful
+        print 'START'
     
     def on_quit(self):
-        """Called when the user selects 'Quit'."""
-        sys.exit()
+        """Called when the user presses ESC. Moves back to the main
+        menu."""
+        self.parent.switch_to(0)
 
 
 class OptionsMenu(menu.Menu):
@@ -65,7 +99,7 @@ class OptionsMenu(menu.Menu):
             'Resolution:',
             self.on_resolution_changed,
             self.__class__.AVAILABLE_RESOLUTIONS,
-            0
+            0 # TODO: make dynamic
         )
     
     def on_resolution_changed(self, index):
@@ -76,19 +110,22 @@ class OptionsMenu(menu.Menu):
         width, height = map(int, ar[index].split('x'))
         
         director.window.set_size(width, height)
+        
+        # TODO: save
     
     def create_volume_item(self):
         """Helper method to create the volume item for the menu."""
         return menu.MultipleMenuItem(
             'Volume:',
             self.on_volume_changed,
+            # Options should be str objects to work properly.
             map(str, range(0, 11)),
-            7
+            7 # TODO: make dynamic
         )
     
     def on_volume_changed(self, index):
         """Called when the volume is changed."""
-        print 'VOLUME:', index
+        print 'VOLUME:', index # TODO: save
 
     def on_quit(self):
         """Called when the escape button is pressed. Switches back to

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resource>
+  <requires file="tiles/grass-hill.xml" namespace="grass-hill" />
+  
+  <rectmap id="map0" tile_size="19x19">
+    <column>
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+    </column>
+    <column>
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:bottom-left" />
+      <cell tile="grass-hill:left" />
+      <cell tile="grass-hill:left" />
+      <cell tile="grass-hill:left" />
+      <cell tile="grass-hill:top-left" />
+      <cell tile="grass-hill:middle" />
+    </column>
+    <column>
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:bottom" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:top" />
+      <cell tile="grass-hill:middle" />
+    </column>
+    <column>
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:bottom" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:top" />
+      <cell tile="grass-hill:middle" />
+    </column>
+    <column>
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:bottom" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:top" />
+      <cell tile="grass-hill:middle" />
+    </column>
+    <column>
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:bottom-right" />
+      <cell tile="grass-hill:right" />
+      <cell tile="grass-hill:right" />
+      <cell tile="grass-hill:right" />
+      <cell tile="grass-hill:top-right" />
+      <cell tile="grass-hill:middle" />
+    </column>
+    <column>
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+      <cell tile="grass-hill:middle" />
+    </column>
+  </rectmap>
+</resource>

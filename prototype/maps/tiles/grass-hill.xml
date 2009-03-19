@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resource>
+  <imageatlas size="20x20" file="grass-hill.bmp">
+    <image id="i-tl" offset="0,160" />
+    <image id="i-l" offset="0,120" />
+    <image id="i-bl" offset="0,80" />
+    <image id="i-t" offset="40,160" />
+    <image id="i-m" offset="40,120" />
+    <image id="i-b" offset="40,80" />
+    <image id="i-tr" offset="80,160" />
+    <image id="i-r" offset="80,120" />
+    <image id="i-br" offset="80,80" />
+  </imageatlas>
+   
+  <tileset>
+    <tile id="top-left">
+      <property type="bool" name="collision" value="true" />
+      <image ref="i-tl" />
+    </tile>
+    <tile id="left">
+      <property type="bool" name="collision" value="true" />
+      <image ref="i-l" />
+    </tile>
+    <tile id="bottom-left">
+      <property type="bool" name="collision" value="true" />
+      <image ref="i-bl" />
+    </tile>
+    <tile id="top">
+      <property type="bool" name="collision" value="true" />
+      <image ref="i-t" />
+    </tile>
+    <tile id="middle"><image ref="i-m" /></tile>
+    <tile id="bottom">
+      <property type="bool" name="collision" value="true" />
+      <image ref="i-b" />
+    </tile>
+    <tile id="top-right">
+      <property type="bool" name="collision" value="true" />
+      <image ref="i-tr" />
+    </tile>
+    <tile id="right">
+      <property type="bool" name="collision" value="true" />
+      <image ref="i-r" />
+    </tile>
+    <tile id="bottom-right">
+      <property type="bool" name="collision" value="true" />
+      <image ref="i-br" />
+    </tile>
+  </tileset>
+</resource>
