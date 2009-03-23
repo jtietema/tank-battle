@@ -22,13 +22,18 @@ def get_first(parent, tag_name):
     return parent.getElementsByTagName(tag_name)[0]
 
 
-def get_attribute(node, attribute_name, default=None):
+def try_attribute(node, attribute_name, default=None):
     """Tries to get an attribute from the supplied node. Returns the default
     value if the attribute is unavailable."""
     if node.hasAttribute(attribute_name):
         return node.getAttribute(attribute_name)
     
     return default
+
+
+def has_child(node, child_tag_name):
+    """Determines if the node has at least one child with the specified tag name."""
+    return len(node.getElementsByTagName(child_tag_name)) > 0
 
 
 def load_tilesets(map_node):
@@ -46,8 +51,8 @@ def load_tiles(tileset_node):
     
     tile_width = int(tileset_node.getAttribute('tilewidth'))
     tile_height = int(tileset_node.getAttribute('tileheight'))
-    spacing = int(get_attribute(tileset_node, 'spacing', 0))
-    margin = int(get_attribute(tileset_node, 'margin', 0))
+    spacing = int(try_attribute(tileset_node, 'spacing', 0))
+    margin = int(try_attribute(tileset_node, 'margin', 0))
     
     image_map_file = get_first(tileset_node, 'image').getAttribute('source')
     image_map = pyglet.image.load(image_map_file)
@@ -58,16 +63,49 @@ def load_tiles(tileset_node):
     num_rows = (image_map_height - margin) // (tile_height + spacing)
     num_columns = (image_map_width - margin) // (tile_width + spacing)
     
+    tile_properties = load_tile_properties(tileset_node)
+    
     gid = int(tileset_node.getAttribute('firstgid'))
     for row_index in range(num_rows + 1):
         for col_index in range(num_columns + 1):
             x = margin + col_index * (tile_width + spacing)
             y = image_map_height - (margin + row_index * (tile_height + spacing)) - tile_height
             tile_image = image_map.get_region(x, y, tile_width, tile_height)
-            tiles[gid] = cocos.tiles.Tile(gid, {}, tile_image)
+            
+            if gid in tile_properties:
+                properties = tile_properties[gid]
+            else:
+                properties = {}
+            
+            tiles[gid] = cocos.tiles.Tile(gid, properties, tile_image)
             gid += 1
     
     return tiles
+
+
+def load_tile_properties(tileset_node):
+    """Fetches properties for tiles from a tileset. Returns a dictionary, where the keys are
+    the tile IDs."""
+    first_gid = int(tileset_node.getAttribute('firstgid'))
+    tile_nodes = tileset_node.getElementsByTagName('tile')
+    
+    properties = {}
+    
+    for tile_node in tile_nodes:
+        gid = int(tile_node.getAttribute('id')) + first_gid
+        
+        if has_child(tile_node, 'properties'):
+            tile_properties = {}
+            property_nodes = get_first(tile_node, 'properties').getElementsByTagName('property')
+            
+            for property_node in property_nodes:
+                name = property_node.getAttribute('name')
+                value = property_node.getAttribute('value')
+                tile_properties[name] = value
+                
+            properties[gid] = tile_properties
+    
+    return properties
     
 
 def load_map(filename):
@@ -114,7 +152,8 @@ def load_map(filename):
 
 def prepare_matrix(matrix):
     """Converts a row oriented tile matrix into one that cocos2d
-    understands."""
+    understands. Visualize a matrix being rotated 90 degrees counter-clockwise,
+    and you understand exactly what this method does."""
     result = []
     for row in zip(*matrix):
         row = list(row)
@@ -159,19 +198,25 @@ class Tank(Sprite):
         
         r = math.radians(self.rotation)
         s = dt * self.speed
-        self.x += math.sin(r) * s
-        self.y += math.cos(r) * s
-        scroller.set_focus(self.x, self.y)
+        
+        new_x = self.x + math.sin(r) * s
+        new_y = self.y + math.cos(r) * s
+        
+        tile_properties = test_map.get_at_pixel(new_x, new_y).tile.properties
+        if not 'collision' in tile_properties:
+            self.x = new_x
+            self.y = new_y
+            scroller.set_focus(self.x, self.y)
 
 if __name__ == '__main__':
-    director.init(caption='Tank Battle', width=1024, height=768)
+    director.init(caption='Tank Battle', width=800, height=600)
     
-    test_map = load_map('map0.tmx')
+    test_map = load_map('map2.tmx')
     
     tank_layer = cocos.tiles.ScrollableLayer()
     tank = Tank('tank.png')
-    tank.x = test_map.px_width / 2
-    tank.y = test_map.px_height / 2
+    tank.x = test_map.px_width // 2
+    tank.y = test_map.px_height // 2
     tank.schedule(tank.update)
     tank_layer.add(tank)
     
