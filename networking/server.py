@@ -3,6 +3,9 @@ import sys
 import select
 import threading
 
+# TODO: refactor running loop to share code with client class
+# TODO: make messages & incomming thread safe
+
 class ServerSocket(threading.Thread):
     '''Represents one connection with a client'''
     def __init__(self, socket):
