@@ -3,6 +3,10 @@ import select
 import threading
 import time
 
+# TODO: make messages and incoming thread safe
+# TODO: complete get_messages()
+# TODO: refactor running loop to share code with server class
+
 class ClientSocket(threading.Thread):
     '''Client socket for sending messages'''
     def __init__(self, adress):
@@ -11,7 +15,7 @@ class ClientSocket(threading.Thread):
         self.incoming = []
         self.adress = adress
     
-    def run(self):
+    def run(self):gt
         s = socket.socket()
         s.connect(self.adress)
         s.setblocking(0)
