@@ -24,7 +24,7 @@ class GProtocol(Protocol):
         unpacker = xdrlib.Unpacker(data)
         msgId = unpacker.unpack_int()
         handlerMethod = self.msgMap.get(msgId)
-        print "handling:", msgId, handlerMethod        
+        #print "handling:", msgId, handlerMethod
         if handlerMethod:
             try:
                 if not handlerMethod(unpacker):
@@ -51,7 +51,7 @@ class GProtocol(Protocol):
                     return
                 else:
                     self.packetSize = struct.unpack('i', self.packetBuffer[:4])[0] + 4
-                    print "Got packet size of :", self.packetSize
+                    #print "Got packet size of :", self.packetSize
 
             if len(self.packetBuffer) >= self.packetSize:
                 # we have a full packet
