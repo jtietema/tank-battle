@@ -11,8 +11,8 @@ class TankBattleServerProtocol(ServerProtocol):
     def onTankState(self,unpacker):
         id = unpacker.unpack_int()
         rot = unpacker.unpack_float()
-        x = unpacker.unpack_int()
-        y = unpacker.unpack_int()
+        x = unpacker.unpack_float()
+        y = unpacker.unpack_float()
         print "TANKID#"+str(id)+' '+str(rot)+' ('+str(x)+','+str(y)+')'
         
         return True

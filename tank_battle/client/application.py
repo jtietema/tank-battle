@@ -12,7 +12,7 @@ import tiled2cocos
 
 class TankBattleClient(GenericClientApp):    
     def run(self):
-        self.connect('localhost', 7777)
+        self.connect('10.9.8.80', 7777)
         
         director.init(caption='Tank Battle', width=800, height=600)
 

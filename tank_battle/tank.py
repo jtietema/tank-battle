@@ -53,7 +53,7 @@ class Tank(Sprite):
         # Make sure the update method is called on every frame.
         self.schedule(self.update)
         
-        self.schedule_interval(self.send_state, 1)
+        self.schedule_interval(self.send_state, 0.02)
     
     def update(self, dt):
         """Updates the tank's state based on the amount of time passed since the last
@@ -63,10 +63,12 @@ class Tank(Sprite):
         # effectively map to the integers 0 and 1, we can use them for arithmetic.
         rotation_signum = self.app.keyboard[key.RIGHT] - self.app.keyboard[key.LEFT]
         
+        self.rotation += (rotation_signum * ROTATION_SPEED * dt)
+        
         # Make sure the rotation does not get larger than 360 degrees to decrease
         # network traffic.
-        self.rotation += (rotation_signum * ROTATION_SPEED * dt)
         self.rotation = self.rotation % 360
+        
         self.speed = self.calculate_speed(dt)
         
         r = math.radians(self.rotation)
@@ -84,6 +86,7 @@ class Tank(Sprite):
     def send_state(self, dt):
         """Sends the tank's current state to the server."""
         if self.app.player is not None:
+            print self.x, self.y
             self.app.player.protocol.sendTankState(1, self.rotation, (self.x, self.y))
     
     def calculate_speed(self, dt):
