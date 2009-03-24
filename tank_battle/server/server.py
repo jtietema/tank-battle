@@ -17,8 +17,8 @@ class TankBattleServer(GameServerApp):
                 player.protocol.sendTankState(id, rot, (x, y))
     
     def tankId(self, player):
-        for id, (rot, x, y) in enumerate(self.last_known_states):
-            player.protocol.sendTankState(id, rot, (x, y))
+        for id, state in self.last_known_states.items():
+            player.protocol.sendTankState(id, state[0], (state[1], state[2]))
         
         self.currentId += 1
         player.protocol.sendTankId(self.currentId)
