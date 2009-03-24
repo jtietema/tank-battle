@@ -10,6 +10,7 @@ class TankBattleClientProtocol(ClientProtocol):
         ClientProtocol.connectionMade(self)
         # register custom handlers below
         self.registerHandler(SC_TANK_STATE, self.onTankState)
+        self.registerHandler(SC_TANK_ID, self.onTankID)
     
     def onTankState(self,unpacker):
         id = unpacker.unpack_int()
@@ -17,6 +18,11 @@ class TankBattleClientProtocol(ClientProtocol):
         x = unpacker.unpack_float()
         y = unpacker.unpack_float()
         self.app.serverTankState(id,rot,(x,y))
+        return True
+    
+    def onTankID(self, unpacker):
+        id = unpacker.unpack_int()
+        self.app.serverTankID(id)
         return True
     
     def sendTankState(self,id,rot,(x,y)):
