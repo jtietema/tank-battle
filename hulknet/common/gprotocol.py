@@ -73,7 +73,7 @@ class GProtocol(Protocol):
     def sendError(self):
         print "Error:", self.errorId, self.errorMsg
         packer = xdrlib.Packer()
-        packer.pack_int(MSG_ERROR)
+        packer.pack_int(GProtocol.MSG_ERROR)
         packer.pack_int(self.errorId)
         packer.pack_string(self.errorMsg)
         self.writePacker(packer)

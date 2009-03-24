@@ -52,6 +52,8 @@ class Tank(Sprite):
         
         # Make sure the update method is called on every frame.
         self.schedule(self.update)
+        
+        self.schedule_interval(self.send_state, 1)
     
     def update(self, dt):
         """Updates the tank's state based on the amount of time passed since the last
@@ -63,7 +65,8 @@ class Tank(Sprite):
         
         # Make sure the rotation does not get larger than 360 degrees to decrease
         # network traffic.
-        self.rotation += (rotation_signum * ROTATION_SPEED * dt) % 360
+        self.rotation += (rotation_signum * ROTATION_SPEED * dt)
+        self.rotation = self.rotation % 360
         self.speed = self.calculate_speed(dt)
         
         r = math.radians(self.rotation)
@@ -77,6 +80,11 @@ class Tank(Sprite):
             self.x = target_x
             self.y = target_y
             self.app.scroller.set_focus(self.x, self.y)
+    
+    def send_state(self, dt):
+        """Sends the tank's current state to the server."""
+        if self.app.player is not None:
+            self.app.player.protocol.sendTankState(1, self.rotation, (self.x, self.y))
     
     def calculate_speed(self, dt):
         """Calculates the tank's speed based on the time passed since the last update
@@ -130,9 +138,6 @@ class Tank(Sprite):
                 # Accelerating backward
                 speed -= (dt / (ACCEL_TIME * time_factor)) * max_speed
                 speed = max(speed, -max_speed)
-        
-        print 'SIGNUM', driving_signum
-        print 'SPEED', speed
         
         return speed
     

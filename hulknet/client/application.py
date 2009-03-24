@@ -11,6 +11,7 @@ class GenericClientApp:
         self.playerName = "Player%d" % random.randint(0,1000)
         self.gameNames = []
         self.currentGame = None
+        self.player = None
 
     def update(self, interval):
         """Update the network via the Twisted Reactor.
