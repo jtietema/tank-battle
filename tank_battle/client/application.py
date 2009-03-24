@@ -36,6 +36,8 @@ class TankBattleClient(GenericClientApp):
         
         self.connect('10.9.8.80', 7777)
         
+        director.show_FPS = True
+        
         director.run(scene)
     
     def serverTankID(self, id):
