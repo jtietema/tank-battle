@@ -30,7 +30,7 @@ ROTATION_SPEED = 150
 
 
 def signum(number):
-    """This should be in Python's standard library, but it isn't."""
+    """This should be in Python's standard library."""
     if number > 0: return 1
     elif number < 0: return -1
     return number
@@ -39,10 +39,10 @@ def signum(number):
 class Tank(Sprite):
     """A tank in the game."""
     
-    def __init__(self, (x, y)):
+    def __init__(self, x, y):
         """Initializes a new tank sprite."""
         
-        super(self.__class__, self).__init__('tank.png')
+        Sprite.__init__(self, 'tank.png')
         
         # Set the tank's initial position.
         self.x, self.y = x, y
@@ -51,10 +51,10 @@ class Tank(Sprite):
 class PlayerTank(Tank):
     """Specialized version of a tank that can be controlled by the player."""
         
-    def __init__(self, pos, app):
+    def __init__(self, (x, y), app):
         """Initializes a new player tank sprite."""
         
-        super(self.__class__, self).__init__(pos)
+        Tank.__init__(self,x, y)
         
         # Keep a reference to the main application so we can access its
         # attributes when needed.
@@ -98,17 +98,12 @@ class PlayerTank(Tank):
             # The target location is a valid move, so execute it.
             self.x = target_x
             self.y = target_y
-            
-            # Make sure the tank stays in the center of the screen.
             self.app.scroller.set_focus(self.x, self.y)
     
     def send_state(self, dt):
         """Sends the tank's current state to the server."""
         if self.app.player is not None and self.previous_state <> (self.rotation, self.x, self.y):
             self.app.player.protocol.sendTankState(1, self.rotation, (self.x, self.y))
-            
-            # Store the tank's current state so we can compare it later to see if
-            # we should send the tank's update state to the server.
             self.previous_state = (self.rotation, self.x, self.y)
     
     def calculate_speed(self, dt):
@@ -116,22 +111,13 @@ class PlayerTank(Tank):
         call."""
         driving_signum = self.app.keyboard[key.UP] - self.app.keyboard[key.DOWN]
         
-        # Make a copy of the current speed, since we don't want to change it
-        # directly (this is not an in-place method).
         speed = self.speed
         
         if speed is 0:
-            # From stationary, the max speed is determined by the direction
-            # we are driving (forward or reverse).
             max_speed = MAX_SPEEDS[driving_signum]
         else:
-            # When driving, the current driving direction determines the
-            # maximum speed.
             max_speed = MAX_SPEEDS[signum(speed)]
-        
-        # Since the maximum speed is defined in seconds it takes to get from
-        # 0 to 100, we correct the actual time value by multiplying it with
-        # a factor.
+            
         time_factor = max_speed / 100
 
         if speed > 0:

@@ -6,13 +6,13 @@ from cocos.scene import Scene
 from pyglet.window import key
 from cocos.sprite import Sprite
 import cocos.tiles
-from tank_battle.tank import Tank
+from tank_battle.tank import Tank, PlayerTank
 import tiled2cocos
 
 
 class TankBattleClient(GenericClientApp):
     def __init__(self, clientFactoryClass):
-        super(self.__class__, self).__init__(clientFactoryClass)
+        GenericClientApp.__init__(self,clientFactoryClass)
         self.players = {}
     
     def run(self):
@@ -28,7 +28,7 @@ class TankBattleClient(GenericClientApp):
         self.scroller = cocos.tiles.ScrollingManager()
 
         tank_layer = cocos.tiles.ScrollableLayer()
-        tank = Tank((self.current_map.px_width // 2, self.current_map.px_height // 2), self)
+        tank = PlayerTank(((self.current_map.px_width // 2), (self.current_map.px_height // 2)), self)
         tank_layer.add(tank)
         
         self.players_layer = cocos.tiles.ScrollableLayer()
@@ -45,7 +45,7 @@ class TankBattleClient(GenericClientApp):
     
     def serverTankState(self, id, rot, (x,y)):
         if id not in self.players:
-            self.players[id] = Tank((x,y))
+            self.players[id] = Tank((x, y))
             self.players_layer.add(self.players[id])
         self.players[id].rotation = rot
         self.players[id].x = x

@@ -1,3 +1,5 @@
+import xdrlib
+
 from hulknet.server.protocol import ServerProtocol
 from tank_battle.common.messages import *
 
@@ -14,13 +16,12 @@ class TankBattleServerProtocol(ServerProtocol):
         x = unpacker.unpack_float()
         y = unpacker.unpack_float()
         print "TANKID#"+str(id)+' '+str(rot)+' ('+str(x)+','+str(y)+')'
-        self.app.clientTankState(id, rot, (x,y))
-        return True
+        return self.app.tankState(id, rot, (x,y), player)
         
     def sendTankState(self,id,rot,(x,y)):
         packer = xdrlib.Packer()
         
-        packer.pack_int(CS_TANK_STATE)
+        packer.pack_int(SC_TANK_STATE)
         packer.pack_int(id)
         packer.pack_float(rot)
         packer.pack_float(x)

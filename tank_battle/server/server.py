@@ -6,5 +6,9 @@ class TankBattleServer(GameServerApp):
     def __init__(self, port):
         GameServerApp.__init__(self, port, TankBattleServerProtocol, TankBattleGame(self))
     
-    def tankState(self, id, rot, (x,y)):
-        print "TANKID#"+str(id)+' '+str(rot)+' ('+str(x)+','+str(y)+')'
+    def tankState(self, id, rot, (x,y), source_player):
+        '''Send the message back to all clients'''
+        for player in self.players:
+            if player is not source_player:
+                player.protocol.sendTankState(id, rot, (x, y))
+    

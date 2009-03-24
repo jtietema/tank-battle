@@ -62,7 +62,3 @@ class GameServerApp:
         self.players.remove(player)
         player.destroy()
     
-    def clientTankState(self, id, rot, (x,y)):
-        '''Send the message back to all clients'''
-        for player in self.players:
-            player.protocol.sendTankState(id, rot, (x, y))
