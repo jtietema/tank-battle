@@ -46,6 +46,7 @@ class TankBattleClient(GenericClientApp):
         self.scroller.add(tank_layer)
     
     def serverTankRemove(self, id):
+        self.players_layer.remove(self.players[id])
         del self.players[id]
     
     def serverTankState(self, id, rot, (x,y)):
