@@ -2,8 +2,6 @@ from cocos.sprite import Sprite
 from pyglet.window import key
 import math
 
-from game import keyboard, scroller, current_map
-
 
 FORWARD     = 1
 STILL       = 0
@@ -40,9 +38,11 @@ def signum(number):
 class Tank(Sprite):
     """A tank in the game."""
     
-    def __init__(self, (x, y)):
+    def __init__(self, (x, y), app):
         """Initializes a new tank sprite."""
         super(self.__class__, self).__init__('tank.png')
+        
+        self.app = app
         
         # The tank's current speed.
         self.speed = 0
@@ -59,9 +59,11 @@ class Tank(Sprite):
         
         # Determine the tank's rotation signum. Since the operands are booleans, which
         # effectively map to the integers 0 and 1, we can use them for arithmetic.
-        rotation_signum = keyboard[key.RIGHT] - keyboard[key.LEFT]
+        rotation_signum = self.app.keyboard[key.RIGHT] - self.app.keyboard[key.LEFT]
         
-        self.rotation += rotation_signum * ROTATION_SPEED * dt
+        # Make sure the rotation does not get larger than 360 degrees to decrease
+        # network traffic.
+        self.rotation += (rotation_signum * ROTATION_SPEED * dt) % 360
         self.speed = self.calculate_speed(dt)
         
         r = math.radians(self.rotation)
@@ -74,12 +76,12 @@ class Tank(Sprite):
             # The target location is a valid move, so execute it.
             self.x = target_x
             self.y = target_y
-            scroller.set_focus(self.x, self.y)
+            self.app.scroller.set_focus(self.x, self.y)
     
     def calculate_speed(self, dt):
         """Calculates the tank's speed based on the time passed since the last update
         call."""
-        driving_signum = keyboard[key.UP] - keyboard[key.DOWN]
+        driving_signum = self.app.keyboard[key.UP] - self.app.keyboard[key.DOWN]
         
         speed = self.speed
         
@@ -137,5 +139,5 @@ class Tank(Sprite):
     def is_valid_move(self, (target_x, target_y)):
         """Determines if the move designated by the target position tuple passed
         in is a valid move, i.e. it does not cause any collisions."""
-        tile_properties = current_map.get_at_pixel(target_x, target_y).tile.properties
+        tile_properties = self.app.current_map.get_at_pixel(target_x, target_y).tile.properties
         return not 'collision' in tile_properties
