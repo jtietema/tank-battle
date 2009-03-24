@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 
+# TODO: multiple layers
+# TODO: properties on layers and the map itself
+# TODO: includes inside maps file should be relative to the maps file, not relative
+#       to the CWD.
+
 import pyglet.image
 import cocos.tiles
 import xml.dom.minidom
+import os
 
 
 def get_text_contents(node, preserve_whitespace=False):
@@ -122,9 +128,6 @@ def load_map(filename):
     tiles = load_tilesets(map_node)
     
     layer_node = get_first(map_node, 'layer')
-    
-    # TODO: multiple layers
-    # TODO: support cell and tile properties
     
     tile_nodes = get_first(layer_node, 'data').getElementsByTagName('tile')
     tile_index = 0
