@@ -126,7 +126,7 @@ class Tank(Sprite):
                 speed = min(speed, max_speed)
             elif driving_signum < 0:
                 # Accelerating backward
-                speed -= dt / BACKWARD_ACCEL_TIME * time_factor * max_speed
+                speed -= dt / ACCEL_TIME * time_factor * max_speed
                 speed = max(speed, -max_speed)
         
         print 'SIGNUM', driving_signum
