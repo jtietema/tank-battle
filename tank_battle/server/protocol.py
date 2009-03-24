@@ -14,4 +14,6 @@ class TankBattleServerProtocol(ServerProtocol):
         x = unpacker.unpack_int()
         y = unpacker.unpack_int()
         print "TANKID#"+str(id)+' '+str(rot)+' ('+str(x)+','+str(y)+')'
+        
+        return True
         # TODO call function on app

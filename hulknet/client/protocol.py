@@ -25,16 +25,17 @@ class ClientProtocol(GProtocol):
         errorId = unpacker.unpack_int()
         errorMsg = unpacker.unpack_string()
         print "ERROR [%d] %s" % (errorId, errorMsg)
-        return 1
+        return True
         
     def onPlayerLeave(self, unpacker):
         name = unpacker.unpack_string()
         self.app.serverPlayerLeave(name)
-        return 1
+        return True
     
     def onPlayerJoin(self, unpacker):
         name = unpacker.unpack_string()
         self.app.serverPlayerJoin(name)
+        return True
         
     ### Message sender methods ###
 
