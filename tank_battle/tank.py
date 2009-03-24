@@ -30,27 +30,42 @@ ROTATION_SPEED = 150
 
 
 def signum(number):
+    """This should be in Python's standard library."""
     if number > 0: return 1
     elif number < 0: return -1
     return number
-
+    
 
 class Tank(Sprite):
     """A tank in the game."""
     
-    def __init__(self, (x, y), app):
+    def __init__(self, (x, y)):
         """Initializes a new tank sprite."""
+        
         super(self.__class__, self).__init__('tank.png')
         
+        # Set the tank's initial position.
+        self.x, self.y = x, y
+
+
+class PlayerTank(Tank):
+    """Specialized version of a tank that can be controlled by the player."""
+        
+    def __init__(self, pos, app):
+        """Initializes a new player tank sprite."""
+        
+        super(self.__class__, self).__init__(pos)
+        
+        # Keep a reference to the main application so we can access its
+        # attributes when needed.
         self.app = app
         
         # The tank's current speed.
         self.speed = 0
         
-        # Set the tank's initial position.
-        self.x, self.y = x, y
-        
-        self.previous_state = (self.rotation, self.x, self.y)
+        # Remember the tank's previous state so we can determine if we need
+        # to send an update across the network.
+        self.previous_state = None
         
         # Make sure the update method is called on every frame.
         self.schedule(self.update)
