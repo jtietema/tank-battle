@@ -37,12 +37,12 @@ class TankBattleServerProtocol(ServerProtocol):
         packer.pack_int(id)
         self.writePacker(packer)
     
-    def connectionLost(self):
-        ServerProtocol.connectionLost(self)
+    def connectionLost(self, reason):
+        ServerProtocol.connectionLost(self, reason)
         self.app.tankRemove(self.tank_id)
     
     def sendTankRemove(self, id):
-        packer = xdrlib.Packer(SC_TANK_REMOVE)
+        packer = xdrlib.Packer()
         packer.pack_int(SC_TANK_REMOVE)
         packer.pack_int(id)
         self.writePacker(packer)
