@@ -17,3 +17,6 @@ class TankBattleServer(GameServerApp):
         self.currentId += 1
         player.protocol.sendTankId(self.currentId)
     
+    def tankRemove(self, id):
+        for player in self.players:
+            player.protocol.sendTankRemove(id)

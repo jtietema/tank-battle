@@ -7,7 +7,8 @@ class TankBattleServerProtocol(ServerProtocol):
     def connectionMade(self):
         ServerProtocol.connectionMade(self)
         # send a tank ID to the player
-        self.app.tankId(player)
+        self.tank_id = None
+        self.app.tankId(self.player)
         # register handles
         self.registerHandler(CS_TANK_STATE, self.onTankState)
     
@@ -30,7 +31,19 @@ class TankBattleServerProtocol(ServerProtocol):
         self.writePacker(packer)
     
     def sendTankId(self, id):
+        self.tank_id = id
         packer = xdrlib.Packer()
         packer.pack_int(SC_TANK_ID)
         packer.pack_int(id)
         self.writePacker(packer)
+    
+    def connectionLost(self):
+        ServerProtocol.connectionLost(self)
+        self.app.tankRemove(self.tank_id)
+    
+    def sendTankRemove(self, id):
+        packer = xdrlib.Packer(SC_TANK_REMOVE)
+        packer.pack_int(SC_TANK_REMOVE)
+        packer.pack_int(id)
+        self.writePacker(packer)
+    
