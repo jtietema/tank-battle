@@ -6,7 +6,8 @@ from tank_battle.common.messages import *
 class TankBattleServerProtocol(ServerProtocol):
     def connectionMade(self):
         ServerProtocol.connectionMade(self)
-        
+        # send a tank ID to the player
+        self.app.tankId(player)
         # register handles
         self.registerHandler(CS_TANK_STATE, self.onTankState)
     
@@ -16,7 +17,7 @@ class TankBattleServerProtocol(ServerProtocol):
         x = unpacker.unpack_float()
         y = unpacker.unpack_float()
         print "TANKID#"+str(id)+' '+str(rot)+' ('+str(x)+','+str(y)+')'
-        return self.app.tankState(id, rot, (x,y), player)
+        return self.app.tankState(id, rot, (x,y), self.player)
         
     def sendTankState(self,id,rot,(x,y)):
         packer = xdrlib.Packer()
@@ -26,5 +27,10 @@ class TankBattleServerProtocol(ServerProtocol):
         packer.pack_float(rot)
         packer.pack_float(x)
         packer.pack_float(y)
-        
+        self.writePacker(packer)
+    
+    def sendTankId(self, id):
+        packer = xdrlib.Packer()
+        packer.pack_int(SC_TANK_ID)
+        packer.pack_int(id)
         self.writePacker(packer)
