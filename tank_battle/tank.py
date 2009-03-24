@@ -22,7 +22,7 @@ BRAKE_TIME = 0.4
 
 # Time it takes from slow down naturally from 100 to zero, in
 # seconds.
-SLOW_DOWN_TIME = 2
+SLOW_DOWN_TIME = 1.5
 
 # The speed at which the tank can rotate. The tank can rotate while
 # not driving.
@@ -39,24 +39,21 @@ def signum(number):
 class Tank(Sprite):
     """A tank in the game."""
     
-    def __init__(self, id, (x, y)):
+    def __init__(self, id, pos):
         """Initializes a new tank sprite."""
         
-        Sprite.__init__(self, 'tank.png')
+        Sprite.__init__(self, 'tank.png', pos)
         
         self.id = id
-        
-        # Set the tank's initial position.
-        self.x, self.y = x, y
 
 
 class PlayerTank(Tank):
     """Specialized version of a tank that can be controlled by the player."""
         
-    def __init__(self, id, (x, y), app):
+    def __init__(self, id, pos, app):
         """Initializes a new player tank sprite."""
         
-        Tank.__init__(self, id, (x, y))
+        Tank.__init__(self, id, pos)
         
         # Keep a reference to the main application so we can access its
         # attributes when needed.
@@ -166,5 +163,10 @@ class PlayerTank(Tank):
     def is_valid_move(self, (target_x, target_y)):
         """Determines if the move designated by the target position tuple passed
         in is a valid move, i.e. it does not cause any collisions."""
-        tile_properties = self.app.current_map.get_at_pixel(target_x, target_y).tile.properties
-        return not 'collision' in tile_properties
+        cells = self.app.current_map.get_in_region(target_x, target_y, target_x + self.width, target_y + self.height)
+        
+        for cell in cells:
+            if 'collision' in cell.tile.properties:
+                return False
+        
+        return True
