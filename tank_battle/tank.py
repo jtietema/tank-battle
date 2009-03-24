@@ -94,39 +94,39 @@ class Tank(Sprite):
             # Driving forward
             if driving_signum > 0:
                 # Still accelerating
-                speed += dt / ACCEL_TIME * time_factor * max_speed
+                speed += (dt / (ACCEL_TIME * time_factor)) * max_speed
                 speed = min(speed, max_speed)
             elif driving_signum < 0:
                 # Braking
-                speed -= dt / BRAKE_TIME * time_factor * max_speed
+                speed -= (dt / (BRAKE_TIME * time_factor)) * max_speed
             else:
                 # Slowing down just by friction
-                speed -= dt / SLOW_DOWN_TIME * time_factor * max_speed
+                speed -= (dt / (SLOW_DOWN_TIME * time_factor)) * max_speed
                 speed = max(speed, 0)
 
         elif speed < 0:
             # Driving in reverse
             if driving_signum < 0:
                 # Still accelerating
-                speed -= dt / ACCEL_TIME * time_factor * max_speed
+                speed -= (dt / (ACCEL_TIME * time_factor)) * max_speed
                 speed = max(speed, -max_speed)
             elif driving_signum > 0:
                 # Braking
-                speed += dt / BRAKE_TIME * time_factor * max_speed
+                speed += (dt / (BRAKE_TIME * time_factor)) * max_speed
             else:
                 # Slowing down just by friction
-                speed += dt / SLOW_DOWN_TIME * time_factor * max_speed
+                speed += (dt / (SLOW_DOWN_TIME * time_factor)) * max_speed
                 speed = min(speed, 0)
 
         else:
             # Standing still
             if driving_signum > 0:
                 # Accelerating forward
-                speed += dt / ACCEL_TIME * time_factor * max_speed
+                speed += (dt / (ACCEL_TIME * time_factor)) * max_speed
                 speed = min(speed, max_speed)
             elif driving_signum < 0:
                 # Accelerating backward
-                speed -= dt / ACCEL_TIME * time_factor * max_speed
+                speed -= (dt / (ACCEL_TIME * time_factor)) * max_speed
                 speed = max(speed, -max_speed)
         
         print 'SIGNUM', driving_signum
