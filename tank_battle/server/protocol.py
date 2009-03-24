@@ -14,6 +14,16 @@ class TankBattleServerProtocol(ServerProtocol):
         x = unpacker.unpack_float()
         y = unpacker.unpack_float()
         print "TANKID#"+str(id)+' '+str(rot)+' ('+str(x)+','+str(y)+')'
-        
+        self.app.clientTankState(id, rot, (x,y))
         return True
-        # TODO call function on app
+        
+    def sendTankState(self,id,rot,(x,y)):
+        packer = xdrlib.Packer()
+        
+        packer.pack_int(CS_TANK_STATE)
+        packer.pack_int(id)
+        packer.pack_float(rot)
+        packer.pack_float(x)
+        packer.pack_float(y)
+        
+        self.writePacker(packer)

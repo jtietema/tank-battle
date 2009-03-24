@@ -9,13 +9,15 @@ class TankBattleClientProtocol(ClientProtocol):
         print 'connection made...'
         ClientProtocol.connectionMade(self)
         # register custom handlers below
+        self.registerHandler(SC_TANK_STATE, self.onTankState)
     
     def onTankState(self,unpacker):
         id = unpacker.unpack_int()
         rot = unpacker.unpack_float()
         x = unpacker.unpack_float()
         y = unpacker.unpack_float()
-        #self.app.serverTankState(id,rot,(x,y))
+        self.app.serverTankState(id,rot,(x,y))
+        return True
     
     def sendTankState(self,id,rot,(x,y)):
         packer = xdrlib.Packer()
