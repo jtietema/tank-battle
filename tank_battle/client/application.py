@@ -51,10 +51,9 @@ class TankBattleClient(GenericClientApp):
         self.players_layer.remove(self.players[id])
         del self.players[id]
     
-    def serverTankState(self, id, rot, (x,y)):
+    def serverTankState(self, id, rot, rot_signum, speed, driving_signum, pos):
         if id not in self.players:
-            self.players[id] = Tank(id, (x, y))
+            self.players[id] = Tank(id, pos, self)
             self.players_layer.add(self.players[id])
-        self.players[id].rotation = rot
-        self.players[id].x = x
-        self.players[id].y = y
+            
+        self.players[id].sync_state(rot, rot_signum, speed, driving_signum, pos)

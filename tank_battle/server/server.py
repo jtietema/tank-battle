@@ -8,17 +8,17 @@ class TankBattleServer(GameServerApp):
         self.currentId = 0
         self.last_known_states = {}
     
-    def tankState(self, id, rot, (x,y), source_player):
+    def tankState(self, id, rot, rot_signum, speed, driving_signum, pos, source_player):
         '''Send the message back to all clients'''
-        self.last_known_states[id] = (rot, x, y)
+        self.last_known_states[id] = (rot, rot_signum, speed, driving_signum, pos)
         
         for player in self.players:
             if player is not source_player:
-                player.protocol.sendTankState(id, rot, (x, y))
+                player.protocol.sendTankState(id, *self.last_known_states[id])
     
     def tankId(self, player):
         for id, state in self.last_known_states.items():
-            player.protocol.sendTankState(id, state[0], (state[1], state[2]))
+            player.protocol.sendTankState(id, *state)
         
         self.currentId += 1
         player.protocol.sendTankId(self.currentId)

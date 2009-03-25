@@ -15,19 +15,26 @@ class TankBattleServerProtocol(ServerProtocol):
     def onTankState(self,unpacker):
         id = unpacker.unpack_int()
         rot = unpacker.unpack_float()
+        rot_signum = unpacker.unpack_int()
+        speed = unpacker.unpack_float()
+        driving_signum = unpacker.unpack_int()
         x = unpacker.unpack_float()
         y = unpacker.unpack_float()
-        print "TANKID#"+str(id)+' '+str(rot)+' ('+str(x)+','+str(y)+')'
-        return self.app.tankState(id, rot, (x,y), self.player)
+        print "TANK_STATE #%d <rotation:%f, rotation_signum:%f, speed:%f, driving_signum:%f, position:(%f, %f)>" % (id, rot, rot_signum, speed, driving_signum, x, y)
+        return self.app.tankState(id, rot, rot_signum, speed, driving_signum, (x,y), self.player)
         
-    def sendTankState(self,id,rot,(x,y)):
+    def sendTankState(self, id, rot, rot_signum, speed, driving_signum, (x, y)):
         packer = xdrlib.Packer()
         
-        packer.pack_int(SC_TANK_STATE)
+        packer.pack_int(SC_TANK_STATE)        
         packer.pack_int(id)
         packer.pack_float(rot)
+        packer.pack_int(rot_signum)
+        packer.pack_float(speed)
+        packer.pack_int(driving_signum)
         packer.pack_float(x)
         packer.pack_float(y)
+        
         self.writePacker(packer)
     
     def sendTankId(self, id):
