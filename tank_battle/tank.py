@@ -2,6 +2,7 @@ from cocos.sprite import Sprite
 from pyglet.window import key
 import math
 
+from pathfinder import Pathfinder
 
 FORWARD     = 1
 STILL       = 0
@@ -169,4 +170,20 @@ class PlayerTank(Tank):
             if 'collision' in cell.tile.properties:
                 return False
         
+        return True
+
+class ComputerTank(Tank):
+    def __init__(self, pos, app):
+        Tank.__init__(self, pos)
+        self.path = None
+        self.app = app
+        self.path_finder = Pathfinder(self.is_valid_move)
+    
+    def update(self, dt):
+        pass
+    
+    def is_valid_move(self, x,y):
+        cell = self.app.current_map.get_cell(x,y)
+        if 'blocked' in cell.tile.properties:
+            return False
         return True
