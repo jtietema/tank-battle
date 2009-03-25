@@ -7,3 +7,4 @@ SC_TANK_REMOVE = 3002
 # client to server messages
 
 CS_TANK_STATE = 4000
+CS_TANK_ID = 4001

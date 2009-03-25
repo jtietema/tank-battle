@@ -24,6 +24,7 @@ class GProtocol(Protocol):
         unpacker = xdrlib.Unpacker(data)
         msgId = unpacker.unpack_int()
         handlerMethod = self.msgMap.get(msgId)
+
         if handlerMethod:
             try:
                 if not handlerMethod(unpacker):
