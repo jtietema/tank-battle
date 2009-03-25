@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
-# TODO: multiple layers
 # TODO: support different tile formats (hexagonal, isometric)
 
 import pyglet.image
 import cocos.tiles
 import xml.dom.minidom
 import os.path
+
+
+__all__ = ['load_map']
 
 
 def get_text_contents(node, preserve_whitespace=False):
@@ -94,7 +96,7 @@ def load_tiles(tileset_node, root_dir):
 
 
 def load_properties(node):
-    """Loads properties on a .tmx node into a dictionary. Checks for existance of
+    """Loads properties on a .tmx node into a dictionary. Checks for existence of
     a properties node. Returns an empty dictionary if no properties are available."""
     properties = {}
     
@@ -122,6 +124,11 @@ def load_tile_properties(tileset_node):
         properties[gid] = load_properties(tile_node)
     
     return properties
+
+
+def create_empty_gid_matrix(width, height):
+    """Creates a matrix of the given size initialized with all zeroes."""
+    return [[0] * width for row_index in range(height)]
     
 
 def load_map(filename):
@@ -130,8 +137,8 @@ def load_map(filename):
 
     map_node = doc.documentElement
 
-    NUM_COLUMNS = int(map_node.getAttribute('width'))
     NUM_ROWS = int(map_node.getAttribute('height'))
+    NUM_COLUMNS = int(map_node.getAttribute('width'))
 
     TILE_WIDTH = int(map_node.getAttribute('tilewidth'))
     TILE_HEIGHT = int(map_node.getAttribute('tileheight'))
@@ -139,18 +146,20 @@ def load_map(filename):
     root_dir = os.path.dirname(os.path.abspath(filename))
     tiles = load_tilesets(map_node, root_dir)
     
-    layer_node = get_first(map_node, 'layer')
+    gid_matrix = create_empty_gid_matrix(NUM_COLUMNS, NUM_ROWS)
     
-    tile_nodes = get_first(layer_node, 'data').getElementsByTagName('tile')
-    tile_index = 0
-    gid_matrix = []
-    for row_index in range(NUM_ROWS):
-        row = []
-        gid_matrix.append(row)
-        for col_index in range(NUM_COLUMNS):
-            tile_node = tile_nodes[tile_index]
-            row.append(int(tile_node.getAttribute('gid')))
-            tile_index += 1
+    layer_nodes = map_node.getElementsByTagName('layer')
+    
+    for layer_node in layer_nodes:
+        tile_index = 0
+        tile_nodes = get_first(layer_node, 'data').getElementsByTagName('tile')
+        for row_index, row in enumerate(gid_matrix):
+            for col_index, col in enumerate(row):
+                tile_node = tile_nodes[tile_index]
+                gid = int(tile_node.getAttribute('gid'))
+                if gid > 0:
+                    row[col_index] = gid
+                tile_index += 1
     
     gid_matrix = prepare_matrix(gid_matrix)
     
@@ -163,23 +172,19 @@ def load_map(filename):
     
     rect_map = cocos.tiles.RectMapLayer('map', TILE_WIDTH, TILE_HEIGHT, cells)
     
-    # Properties are not supported by default, but we can set properties as an attribute
-    # ourselves.
+    # Properties on maps are not supported by default, but we can set properties as
+    # an attribute ourselves.
     rect_map.properties = load_properties(map_node)
     
     return rect_map
 
 
 def prepare_matrix(matrix):
-    """Converts a row oriented tile matrix into one that cocos2d
-    understands. Visualize a matrix being rotated 90 degrees counter-clockwise,
-    and you understand exactly what this method does."""
+    """Rotates a matrix 90 degrees counter-clockwise. This is used to turn tiled's left-right,
+    top-bottom order into cocos' column based bottom-up, left-right order."""
     result = []
     for row in zip(*matrix):
         row = list(row)
         row.reverse()
         result.append(row)
     return result
-
-
-__all__ = ['load_map']
