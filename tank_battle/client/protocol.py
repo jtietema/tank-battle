@@ -26,11 +26,17 @@ class TankBattleClientProtocol(ClientProtocol):
     
     def onTankID(self, unpacker):
         id = unpacker.unpack_int()
+        
+        print "[->] TANK_ID #%d" % (id,)
+        
         self.app.serverTankID(id)
         return True
     
     def onTankRemove(self, unpacker):
         id = unpacker.unpack_int()
+        
+        print "[->] REMOVE_TANK #%d" % (id,)
+        
         self.app.serverTankRemove(id)
         return True
     

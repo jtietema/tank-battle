@@ -21,6 +21,9 @@ class TankBattleServer(GameServerApp):
             player.protocol.sendTankState(id, *state)
         
         self.currentId += 1
+        
+        print "Generated ID %d" % (self.currentId,)
+        
         player.protocol.sendTankId(self.currentId)
     
     def tankRemove(self, id):
