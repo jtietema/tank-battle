@@ -46,7 +46,14 @@ def load_tilesets(map_node, root_dir):
     tileset_nodes = map_node.getElementsByTagName('tileset')
     tiles = {}
     for tileset_node in tileset_nodes:
-        tiles.update(load_tiles(tileset_node, root_dir))
+        if tileset_node.hasAttribute('source'):
+            tileset_filename = tileset_node.getAttribute('source')
+            tileset_doc = xml.dom.minidom.parse(os.path.join(root_dir, tileset_filename))
+            real_node = tileset_doc.documentElement
+        else:
+            real_node = tileset_node
+        
+        tiles.update(load_tiles(real_node, root_dir))
     return tiles
 
 
