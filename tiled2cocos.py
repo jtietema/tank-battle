@@ -148,8 +148,8 @@ def load_properties(node):
 
 def create_gid_matrix(map_node):
     """Creates a column ordered bottom-up, left-right gid matrix by iterating over all
-    the layers in the map file, overwriting the previous layer for all non-empty tiles
-    in the layer. This method also enforces that all tile spots in the final gid matrix
+    the layers in the map file, overwriting all positions in the gid matrix for all non-empty
+    tiles in each layer. This method also enforces that all tile spots in the final gid matrix
     are occupied. It raises a MapException if any tile locations are not occupied."""
     width = int(map_node.getAttribute('width'))
     height = int(map_node.getAttribute('height'))
