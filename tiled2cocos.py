@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # TODO: support different tile formats (hexagonal, isometric)
+# TODO: support for different tile sources
 
 import pyglet.image
 import cocos.tiles
@@ -9,6 +10,9 @@ import os.path
 
 
 __all__ = ['load_map']
+
+
+class MapException(Exception): pass
 
 
 def get_text_contents(node, preserve_whitespace=False):
@@ -66,23 +70,21 @@ def load_tiles(tileset_node, root_dir):
     spacing = int(try_attribute(tileset_node, 'spacing', 0))
     margin = int(try_attribute(tileset_node, 'margin', 0))
     
-    image_map_file = get_first(tileset_node, 'image').getAttribute('source')
-    image_map = pyglet.image.load(os.path.join(root_dir, image_map_file))
+    image_atlas_file = get_first(tileset_node, 'image').getAttribute('source')
+    image_atlas = pyglet.image.load(os.path.join(root_dir, image_atlas_file))
     
-    image_map_height = image_map.height
-    image_map_width = image_map.width
-    
-    num_rows = (image_map_height - margin) // (tile_height + spacing)
-    num_columns = (image_map_width - margin) // (tile_width + spacing)
+    num_rows = (image_atlas.height - margin) // (tile_height + spacing)
+    num_columns = (image_atlas.width - margin) // (tile_width + spacing)
     
     tile_properties = load_tile_properties(tileset_node)
     
     gid = int(tileset_node.getAttribute('firstgid'))
     for row_index in range(num_rows + 1):
         for col_index in range(num_columns + 1):
+            # Extract the relevant portion from the image atlas file.
             x = margin + col_index * (tile_width + spacing)
-            y = image_map_height - (margin + row_index * (tile_height + spacing)) - tile_height
-            tile_image = image_map.get_region(x, y, tile_width, tile_height)
+            y = image_atlas.height - (margin + row_index * (tile_height + spacing)) - tile_height
+            tile_image = image_atlas.get_region(x, y, tile_width, tile_height)
             
             if gid in tile_properties:
                 properties = tile_properties[gid]
@@ -120,40 +122,30 @@ def load_tile_properties(tileset_node):
     properties = {}
     
     for tile_node in tile_nodes:
+        # The id attribute specifies a unique id for a tile PER TILESET. This is different
+        # from the 'gid' attribute.
         gid = int(tile_node.getAttribute('id')) + first_gid
         properties[gid] = load_properties(tile_node)
     
     return properties
 
 
-def create_empty_gid_matrix(width, height):
-    """Creates a matrix of the given size initialized with all zeroes."""
-    return [[0] * width for row_index in range(height)]
+def create_gid_matrix(map_node):
+    """Creates a column ordered bottom-up, left-right gid matrix by iterating over all
+    the layers in the map file, overwriting the previous layer for all non-empty tiles
+    in the layer. This method also enforces that all tile spots in the final gid matrix
+    are occupied. It raises a MapException if any tile locations are not occupied."""
+    width = int(map_node.getAttribute('width'))
+    height = int(map_node.getAttribute('height'))
     
-
-def load_map(filename):
-    """Loads the actual map_node using the tilesets passed in."""
-    doc = xml.dom.minidom.parse(filename)
-
-    map_node = doc.documentElement
-
-    NUM_ROWS = int(map_node.getAttribute('height'))
-    NUM_COLUMNS = int(map_node.getAttribute('width'))
-
-    TILE_WIDTH = int(map_node.getAttribute('tilewidth'))
-    TILE_HEIGHT = int(map_node.getAttribute('tileheight'))
-    
-    root_dir = os.path.dirname(os.path.abspath(filename))
-    tiles = load_tilesets(map_node, root_dir)
-    
-    gid_matrix = create_empty_gid_matrix(NUM_COLUMNS, NUM_ROWS)
+    gid_matrix = create_empty_gid_matrix(width, height)
     
     layer_nodes = map_node.getElementsByTagName('layer')
     
     for layer_node in layer_nodes:
         tile_index = 0
         tile_nodes = get_first(layer_node, 'data').getElementsByTagName('tile')
-        for row_index, row in enumerate(gid_matrix):
+        for row in gid_matrix:
             for col_index, col in enumerate(row):
                 tile_node = tile_nodes[tile_index]
                 gid = int(tile_node.getAttribute('gid'))
@@ -161,25 +153,18 @@ def load_map(filename):
                     row[col_index] = gid
                 tile_index += 1
     
-    gid_matrix = prepare_matrix(gid_matrix)
+    if any([min(row) <= 0 for row in gid_matrix]):
+        raise MapException('All tile locations should be occupied.')
     
-    cells = []
-    for i, column in enumerate(gid_matrix):
-        col = []
-        cells.append(col)
-        for j, gid in enumerate(column):
-            col.append(cocos.tiles.RectCell(i, j, TILE_WIDTH, TILE_HEIGHT, {}, tiles[gid]))
+    return rotate_matrix_ccw(gid_matrix)
+
     
-    rect_map = cocos.tiles.RectMapLayer('map', TILE_WIDTH, TILE_HEIGHT, cells)
-    
-    # Properties on maps are not supported by default, but we can set properties as
-    # an attribute ourselves.
-    rect_map.properties = load_properties(map_node)
-    
-    return rect_map
+def create_empty_gid_matrix(width, height):
+    """Creates a matrix of the given size initialized with all zeroes."""
+    return [[0] * width for row_index in range(height)]
 
 
-def prepare_matrix(matrix):
+def rotate_matrix_ccw(matrix):
     """Rotates a matrix 90 degrees counter-clockwise. This is used to turn tiled's left-right,
     top-bottom order into cocos' column based bottom-up, left-right order."""
     result = []
@@ -188,3 +173,34 @@ def prepare_matrix(matrix):
         row.reverse()
         result.append(row)
     return result
+    
+
+def load_map(filename):
+    """Loads the actual map_node using the tilesets passed in."""
+    doc = xml.dom.minidom.parse(filename)
+
+    map_node = doc.documentElement
+
+    tile_width = int(map_node.getAttribute('tilewidth'))
+    tile_height = int(map_node.getAttribute('tileheight'))
+    
+    root_dir = os.path.dirname(os.path.abspath(filename))
+    
+    tiles = load_tilesets(map_node, root_dir)
+    gid_matrix = create_gid_matrix(map_node)
+    
+    cells = []
+    for i, column in enumerate(gid_matrix):
+        col = []
+        cells.append(col)
+        for j, gid in enumerate(column):
+            if gid > 0:
+                col.append(cocos.tiles.RectCell(i, j, tile_width, tile_height, {}, tiles[gid]))
+    
+    rect_map = cocos.tiles.RectMapLayer('map', tile_width, tile_height, cells)
+    
+    # Properties on maps are not supported by default, but we can set properties as
+    # an attribute ourselves.
+    rect_map.properties = load_properties(map_node)
+    
+    return rect_map
