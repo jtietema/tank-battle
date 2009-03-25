@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 # TODO: multiple layers
-# TODO: properties on layers and the map itself
-# TODO: includes inside maps file should be relative to the maps file, not relative
-#       to the CWD.
+# TODO: support different tile formats (hexagonal, isometric)
 
 import pyglet.image
 import cocos.tiles
@@ -95,6 +93,22 @@ def load_tiles(tileset_node, root_dir):
     return tiles
 
 
+def load_properties(node):
+    """Loads properties on a .tmx node into a dictionary. Checks for existance of
+    a properties node. Returns an empty dictionary if no properties are available."""
+    properties = {}
+    
+    if has_child(node, 'properties'):
+        property_nodes = get_first(node, 'properties').getElementsByTagName('property')
+        
+        for property_node in property_nodes:
+            name = property_node.getAttribute('name')
+            value = property_node.getAttribute('value')
+            properties[name] = value
+    
+    return properties
+
+
 def load_tile_properties(tileset_node):
     """Fetches properties for tiles from a tileset. Returns a dictionary, where the keys are
     the tile IDs."""
@@ -105,17 +119,7 @@ def load_tile_properties(tileset_node):
     
     for tile_node in tile_nodes:
         gid = int(tile_node.getAttribute('id')) + first_gid
-        
-        if has_child(tile_node, 'properties'):
-            tile_properties = {}
-            property_nodes = get_first(tile_node, 'properties').getElementsByTagName('property')
-            
-            for property_node in property_nodes:
-                name = property_node.getAttribute('name')
-                value = property_node.getAttribute('value')
-                tile_properties[name] = value
-                
-            properties[gid] = tile_properties
+        properties[gid] = load_properties(tile_node)
     
     return properties
     
@@ -157,7 +161,13 @@ def load_map(filename):
         for j, gid in enumerate(column):
             col.append(cocos.tiles.RectCell(i, j, TILE_WIDTH, TILE_HEIGHT, {}, tiles[gid]))
     
-    return cocos.tiles.RectMapLayer('map', TILE_WIDTH, TILE_HEIGHT, cells)
+    rect_map = cocos.tiles.RectMapLayer('map', TILE_WIDTH, TILE_HEIGHT, cells)
+    
+    # Properties are not supported by default, but we can set properties as an attribute
+    # ourselves.
+    rect_map.properties = load_properties(map_node)
+    
+    return rect_map
 
 
 def prepare_matrix(matrix):
