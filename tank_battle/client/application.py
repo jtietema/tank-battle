@@ -20,7 +20,7 @@ class TankBattleClient(GenericClientApp):
     def run(self):
         director.init(caption='Tank Battle', width=800, height=600)
 
-        self.current_map = tiled2cocos.load_map('map2.tmx')
+        self.current_map = tiled2cocos.load_map('maps/map2.tmx')
 
         self.keyboard = key.KeyStateHandler()
         director.window.push_handlers(self.keyboard)

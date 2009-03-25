@@ -8,7 +8,7 @@
 import pyglet.image
 import cocos.tiles
 import xml.dom.minidom
-import os
+import os.path
 
 
 def get_text_contents(node, preserve_whitespace=False):
@@ -41,16 +41,16 @@ def has_child(node, child_tag_name):
     return len(node.getElementsByTagName(child_tag_name)) > 0
 
 
-def load_tilesets(map_node):
+def load_tilesets(map_node, root_dir):
     """Creates the cocos2d TileSet objects from .tmx tileset nodes."""
     tileset_nodes = map_node.getElementsByTagName('tileset')
     tiles = {}
     for tileset_node in tileset_nodes:
-        tiles.update(load_tiles(tileset_node))
+        tiles.update(load_tiles(tileset_node, root_dir))
     return tiles
 
 
-def load_tiles(tileset_node):
+def load_tiles(tileset_node, root_dir):
     """Loads the tiles from one tileset."""
     tiles = {}
     
@@ -60,7 +60,7 @@ def load_tiles(tileset_node):
     margin = int(try_attribute(tileset_node, 'margin', 0))
     
     image_map_file = get_first(tileset_node, 'image').getAttribute('source')
-    image_map = pyglet.image.load(image_map_file)
+    image_map = pyglet.image.load(os.path.join(root_dir, image_map_file))
     
     image_map_height = image_map.height
     image_map_width = image_map.width
@@ -125,7 +125,8 @@ def load_map(filename):
     TILE_WIDTH = int(map_node.getAttribute('tilewidth'))
     TILE_HEIGHT = int(map_node.getAttribute('tileheight'))
     
-    tiles = load_tilesets(map_node)
+    root_dir = os.path.dirname(os.path.abspath(filename))
+    tiles = load_tilesets(map_node, root_dir)
     
     layer_node = get_first(map_node, 'layer')
     
