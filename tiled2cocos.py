@@ -46,10 +46,11 @@ def load_map(filename):
     cells = []
     for i, column in enumerate(gid_matrix):
         col = []
-        cells.append(col)
+        
         for j, gid in enumerate(column):
-            if gid > 0:
-                col.append(cocos.tiles.RectCell(i, j, tile_width, tile_height, {}, tiles[gid]))
+            col.append(cocos.tiles.RectCell(i, j, tile_width, tile_height, {}, tiles[gid]))
+            
+        cells.append(col)
 
     rect_map = cocos.tiles.RectMapLayer('map', tile_width, tile_height, cells)
 
