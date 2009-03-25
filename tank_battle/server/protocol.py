@@ -11,6 +11,7 @@ class TankBattleServerProtocol(ServerProtocol):
         self.app.tankId(self.player)
         # register handles
         self.registerHandler(CS_TANK_STATE, self.onTankState)
+        self.registerHandler(CS_TANK_ID, self.onTankId)
     
     def onTankState(self,unpacker):
         id = unpacker.unpack_int()
@@ -19,7 +20,10 @@ class TankBattleServerProtocol(ServerProtocol):
         y = unpacker.unpack_float()
         print "TANKID#"+str(id)+' '+str(rot)+' ('+str(x)+','+str(y)+')'
         return self.app.tankState(id, rot, (x,y), self.player)
-        
+    
+    def onTankId(self, unpacker):
+        return self.app.tankId(self.player)
+    
     def sendTankState(self,id,rot,(x,y)):
         packer = xdrlib.Packer()
         

@@ -173,17 +173,103 @@ class PlayerTank(Tank):
         return True
 
 class ComputerTank(Tank):
-    def __init__(self, pos, app):
-        Tank.__init__(self, pos)
+    def __init__(self, id, pos, app):
+        Tank.__init__(self, id, pos)
+        
         self.path = None
+        self.dest = None
+        self.rot_dest = None
         self.app = app
-        self.path_finder = Pathfinder(self.is_valid_move)
+        self.pathfinder = Pathfinder(self.is_valid_move)
     
     def update(self, dt):
-        pass
+        '''If there is a path follow it, otherwise calculate one'''
+        if self.path is not None:
+            self.do_move(dt)
+        elif self.pathfinder is not None:
+            self.find_path()
     
-    def is_valid_move(self, x,y):
-        cell = self.app.current_map.get_cell(x,y)
+    def do_move(self, dt):
+        '''Does all the moving logic of the AI tank'''
+        if self.dest is None:
+            self.next_dest()
+        if self.dest is self.xy:
+            self.next_dest()
+        else:
+            if self.rot_dest is self.rotation:
+                # do the moving
+                self.speed = 50
+                #self.move(dt)
+            elif self.rot_dest is None:
+                # calculate new rot_dest
+                self.calc_rotate()
+            else:
+                # rotate some more
+                self.do_rotate()
+    
+    def calc_rotate(self):
+        '''Calculate the new rotation to the destination'''
+        x, y = self.xy
+        dest_x, dest_y = self.dest
+        # calculate the angle
+        dx = abs(x - dest_x)
+        dy = abs(y - dest_y)
+        h = math.sqrt(dx**2 + dy**2)
+        delta_rot = math.asin(dx / h)
+        
+        # we now have the delta, but we need to compensate for the quadrant it is in
+        # eg. right top(0), right bottom(90), left bottom(180) and left top(270)
+        
+        # find the quadrant
+        right = top = True
+        if x > dest_x:
+            right = False
+        if y > dest_y:
+            top = False
+        
+        # correct the angle to rotation
+        if right and not top:
+            delta_rot += 90
+        if not right and not top:
+            delta_rot += 180
+        if top and not right:
+            delta_rot += 270
+        
+        # save the calculated new rotation in the class
+        self.dest_rot = delta_rot
+    
+    def do_rotate(self):
+        '''Rotates the Tank (max 5 degrees per update)'''
+        rot = min(abs(self.rotation - self.rot_dest), 5)
+        if self.rotation > self.rot_dest:
+            self.rotation -= rot # rotate left
+        else:
+            self.rotatation += rot # rotate right
+    
+    def next_dest(self):
+        '''Pick the next destination from the path queue (if present)'''
+        if len(self.path) > 0:
+            dest_ij = self.path.pop(0)
+            cell = self.app.current_map.get_cell(*dest_ij)
+            self.dest = cell.center
+            self.rot_dest = None
+        else:
+            self.path = None
+    
+    def find_path(self):
+        '''Do pathfinding stuff'''
+        result = Pathfinder.NOT_DONE
+        while result is Pathfinder.NOT_DONE:
+            result = self.pathfinder.iteratePath()
+        if result.FOUND_GOAL:
+            self.path = self.pathfinder.finishPath()
+            self.pathfinder = None
+        if result.IMPOSSIBLE:
+            self.pathfinder = None
+    
+    def is_valid_move(self, i,j):
+        '''Checks if the tile is blocked (used by pathfinding code)'''
+        cell = self.app.current_map.get_cell(i,j)
         if 'blocked' in cell.tile.properties:
             return False
         return True

@@ -41,3 +41,8 @@ class TankBattleClientProtocol(ClientProtocol):
         packer.pack_float(y)
         
         self.writePacker(packer)
+    
+    def sendTankId(self):
+        packer = xdrlib.Packer()
+        packer.pack_int(CS_TANK_ID)
+        self.writePacker(packer)
