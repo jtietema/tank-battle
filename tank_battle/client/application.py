@@ -1,6 +1,6 @@
 from hulknet.client.application import GenericClientApp
 
-
+import sys
 from cocos.director import director
 from cocos.scene import Scene
 from pyglet.window import key
@@ -34,7 +34,7 @@ class TankBattleClient(GenericClientApp):
         
         scene.schedule(self.update)
         
-        self.connect('10.9.8.80', 7777)
+        self.connect(sys.argv[1], 7777)
         
         director.show_FPS = True
         
