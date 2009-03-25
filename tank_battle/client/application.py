@@ -43,6 +43,11 @@ class TankBattleClient(GenericClientApp):
         
         director.run(scene)
     
+    def update(self, dt):
+        GenericClientApp.update(self, dt)
+        for tank in self.computer_players:
+            tank.update(dt)
+    
     def on_key_press(self, k, modifier):
         if k == key.A:
             self.requestTankId()

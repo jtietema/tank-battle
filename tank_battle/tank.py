@@ -177,7 +177,7 @@ class ComputerTank(Tank):
         Tank.__init__(self, id, pos)
         
         self.path = None
-        self.dest = None
+        self.dest = (0,0)
         self.rot_dest = None
         self.app = app
         self.pathfinder = Pathfinder(self.is_valid_move)
