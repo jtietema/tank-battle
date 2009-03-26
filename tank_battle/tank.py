@@ -215,7 +215,7 @@ class ComputerTank(Tank):
     def __init__(self, id, pos, app):
         Tank.__init__(self, id, pos, app)
         self.path = None
-        self.dest = (0,0)
+        self.dest = (10,10)
         self.idest = None
         self.rot_dest = None
         self.pathfinder = Pathfinder(self.is_valid_cell)
@@ -237,17 +237,12 @@ class ComputerTank(Tank):
         '''Does all the moving logic of the AI tank'''
         if self.idest is None:
             self.next_dest()
-        cell = self.app.current_map.get_at_pixel(*self.position)
-        cellij = (cell.i, cell.j)
-        print 'self:',cellij, ' idest:',self.idest
-        if self.idest == cellij:
+        if self.idest == self.position:
             self.next_dest()
         else:
-            if self.rot_dest is None:
-                print 'calc rotate'
-                # calculate new rot_dest
-                self.calc_rotate()
-            elif int(self.rot_dest) is int(self.rotation):
+            # calculate new rot_dest
+            self.calc_rotate()
+            if self.rot_dest == self.rotation:
                 # do the moving
                 self.speed = 50
                 self.move(dt)
@@ -259,8 +254,7 @@ class ComputerTank(Tank):
     def calc_rotate(self):
         '''Calculate the new rotation to the destination'''
         x, y = self.position
-        cell = self.app.current_map.get_cell(*self.idest)
-        dest_x, dest_y = cell.center
+        dest_x, dest_y = self.idest
         # calculate the angle
         dx = abs(x - dest_x)
         dy = abs(y - dest_y)
@@ -299,11 +293,9 @@ class ComputerTank(Tank):
     def next_dest(self):
         '''Pick the next destination from the path queue (if present)'''
         if len(self.path) > 0:
-            dest_ij = self.path.pop(0)
+            dest_xy = self.path.pop(0)
             print 'next dest'
-            #cell = self.app.current_map.get_cell(*dest_ij)
-            #self.idest = cell.center
-            self.idest = dest_ij
+            self.idest = dest_xy
             self.rot_dest = None
         else:
             self.path = None
@@ -316,6 +308,7 @@ class ComputerTank(Tank):
             result = self.pathfinder.iteratePath()
         if result is Pathfinder.FOUND_GOAL:
             self.path = self.pathfinder.finishPath()
+            map(self.ij_to_xy, self.path)
             self.pathfinder = None
         if result is Pathfinder.IMPOSSIBLE:
             self.pathfinder = None
@@ -326,3 +319,11 @@ class ComputerTank(Tank):
         if cell is None or 'blocked' in cell.tile.properties:
             return False
         return True
+
+    def ij_to_xy(self, ij):
+        return self.app.current_map.get_cell(*ij).center
+
+    def xy_to_ij(self, xy):
+        cell = self.app.current_map.get_at_pixel(*xy)
+        return (cell.i, cell.j)
+
