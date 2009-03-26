@@ -240,7 +240,6 @@ class ComputerTank(Tank):
         dx, dy = self.dest
         dcell = self.app.current_map.get_at_pixel(dx, dy)
         x,y = self.position
-        print 'AI position: ',x,', ',y
         cell = self.app.current_map.get_at_pixel(x, y)
         self.pathfinder.setupPath(cell.i, cell.j, dcell.i, dcell.j)
     
@@ -312,7 +311,6 @@ class ComputerTank(Tank):
         '''Pick the next destination from the path queue (if present)'''
         if len(self.path) > 0:
             dest_xy = self.path.pop(0)
-            print 'next dest:',dest_xy
             self.idest = dest_xy
             self.rot_dest = None
         else:
@@ -320,14 +318,12 @@ class ComputerTank(Tank):
     
     def find_path(self):
         '''Do pathfinding stuff'''
-        print 'find path'
         result = Pathfinder.NOT_DONE
         while result is Pathfinder.NOT_DONE:
             result = self.pathfinder.iteratePath()
         if result is Pathfinder.FOUND_GOAL:
             self.path = self.pathfinder.finishPath()
             self.path = map(self.ij_to_xy, self.path)
-            print 'newpath:',self.path
             self.pathfinder = None
         if result is Pathfinder.IMPOSSIBLE:
             self.pathfinder = None
