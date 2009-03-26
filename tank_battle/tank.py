@@ -172,6 +172,13 @@ class Tank(Sprite):
 
         return speed
 
+    def send_state(self, dt):
+        """Sends the tank's current state to the server."""
+        current_state = (self.rotation, self.rotation_signum, self.speed, self.driving_signum, (self.x, self.y))
+        if self.app.player is not None and self.previous_state <> current_state:
+            self.app.player.protocol.sendTankState(self.id, *current_state)
+            
+            self.previous_state = current_state
 
 class PlayerTank(Tank):
     """Specialized version of a tank that can be controlled by the player."""
@@ -213,14 +220,6 @@ class PlayerTank(Tank):
         """Fires a bullet."""
         self.app.player.protocol.sendFire(self.id, self.rotation, (self.x, self.y))
     
-    def send_state(self, dt):
-        """Sends the tank's current state to the server."""
-        current_state = (self.rotation, self.rotation_signum, self.speed, self.driving_signum, (self.x, self.y))
-        if self.app.player is not None and self.previous_state <> current_state:
-            self.app.player.protocol.sendTankState(self.id, *current_state)
-            
-            self.previous_state = current_state
-
 class ComputerTank(Tank):
     def __init__(self, id, pos, app):
         Tank.__init__(self, id, pos, app)
@@ -228,6 +227,9 @@ class ComputerTank(Tank):
         self.dest = (10,10)
         self.idest = None
         self.rot_dest = None
+        self.rotation_signum = 0
+        self.driving_signum = 0
+        self.previous_state = None
         self.pathfinder = Pathfinder(self.is_valid_cell)
         dx, dy = self.dest
         dcell = self.app.current_map.get_at_pixel(dx, dy)
@@ -247,7 +249,7 @@ class ComputerTank(Tank):
         '''Does all the moving logic of the AI tank'''
         if self.idest is None:
             self.next_dest()
-        if self.idest == self.position:
+        if abs(self.idest[0] - self.position[0]) < 10 and abs(self.idest[1] - self.position[1]) < 10:
             self.next_dest()
         else:
             # calculate new rot_dest
@@ -259,7 +261,7 @@ class ComputerTank(Tank):
             else:
                 # rotate some more
                 self.do_rotate()
-                print 'Rotation ',self.rot_dest,' ', self.rotation
+            self.send_state(dt)
     
     def calc_rotate(self):
         '''Calculate the new rotation to the destination'''
@@ -318,7 +320,8 @@ class ComputerTank(Tank):
             result = self.pathfinder.iteratePath()
         if result is Pathfinder.FOUND_GOAL:
             self.path = self.pathfinder.finishPath()
-            map(self.ij_to_xy, self.path)
+            self.path = map(self.ij_to_xy, self.path)
+            print 'newpath:',self.path
             self.pathfinder = None
         if result is Pathfinder.IMPOSSIBLE:
             self.pathfinder = None
@@ -336,4 +339,7 @@ class ComputerTank(Tank):
     def xy_to_ij(self, xy):
         cell = self.app.current_map.get_at_pixel(*xy)
         return (cell.i, cell.j)
+
+    def is_valid_move(self, (x,y)):
+        return True
 
