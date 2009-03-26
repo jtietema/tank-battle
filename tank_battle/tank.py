@@ -273,7 +273,7 @@ class ComputerTank(Tank):
         dx = abs(x - dest_x)
         dy = abs(y - dest_y)
         h = math.sqrt(dx**2 + dy**2)
-        delta_rot = math.asin(dx / h)
+        delta_rot = math.degrees(math.asin(dx / h))
 
         # we now have the delta, but we need to compensate for the quadrant it is in
         # eg. right top(0), right bottom(90), left bottom(180) and left top(270)
@@ -308,7 +308,7 @@ class ComputerTank(Tank):
         '''Pick the next destination from the path queue (if present)'''
         if len(self.path) > 0:
             dest_xy = self.path.pop(0)
-            print 'next dest'
+            print 'next dest:',dest_xy
             self.idest = dest_xy
             self.rot_dest = None
         else:
