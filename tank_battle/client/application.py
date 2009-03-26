@@ -15,6 +15,7 @@ class TankBattleClient(GenericClientApp):
     def __init__(self, clientFactoryClass):
         GenericClientApp.__init__(self,clientFactoryClass)
         self.players = {}
+        self.bullets = {}
         self.tank_layer = None
         self.tank = None
         self.computer_players = []
@@ -49,6 +50,11 @@ class TankBattleClient(GenericClientApp):
         GenericClientApp.update(self, dt)
         for tank in self.computer_players:
             tank.update(dt)
+        
+    def remove_bullet(self, bullet_id):
+        print 'remove_bullet', bullet_id
+        self.sprites_layer.remove(self.bullets[id])
+        del self.bullets[id]
     
     def on_key_press(self, k, modifier):
         if k == key.A:
@@ -84,4 +90,6 @@ class TankBattleClient(GenericClientApp):
         self.players[id].sync_state(rot, rot_signum, speed, driving_signum, pos)
     
     def serverFire(self, bullet_id, rotation, pos):
-        self.sprites_layer.add(Bullet(bullet_id, rotation, pos))
+        bullet = Bullet(bullet_id, rotation, pos, self)
+        self.bullets[id] = bullet
+        self.sprites_layer.add(bullet)
