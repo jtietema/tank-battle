@@ -45,6 +45,8 @@ class Tank(Sprite):
         
         Sprite.__init__(self, 'tank.png', pos)
         
+        print dir(self)
+        
         # Unique ID to reference this tank through the network. Generated
         # by the server.
         self.id = id
@@ -108,7 +110,7 @@ class Tank(Sprite):
     def is_valid_move(self, (target_x, target_y)):
         """Determines if the move designated by the target position tuple passed
         in is a valid move, i.e. it does not cause any collisions."""
-        cells = self.app.current_map.get_in_region(target_x, target_y, target_x + self.width, target_y + self.height)
+        cells = self.app.current_map.get_in_region(target_x, target_y, target_x + self.width / 2, target_y + self.height / 2)
 
         for cell in cells:
             if 'blocked' in cell.tile.properties:
@@ -196,13 +198,18 @@ class PlayerTank(Tank):
         self.driving_signum = self.app.keyboard[key.UP] - self.app.keyboard[key.DOWN]
         
         self.rotation += (self.rotation_signum * ROTATION_SPEED * dt)
+        
         # Make sure the rotation does not get larger than 360 degrees to decrease
         # network traffic.
         self.rotation = self.rotation % 360
+        
+        print self.width
+        
         self.speed = self.calculate_speed(dt)
         
         if self.move(dt):
             self.app.scroller.set_focus(self.x, self.y)
+    
     def send_state(self, dt):
         """Sends the tank's current state to the server."""
         current_state = (self.rotation, self.rotation_signum, self.speed, self.driving_signum, (self.x, self.y))
