@@ -209,6 +209,10 @@ class PlayerTank(Tank):
         if self.move(dt):
             self.app.scroller.set_focus(self.x, self.y)
     
+    def fire(self):
+        """Fires a bullet."""
+        self.app.player.protocol.sendFire(self.id, self.rotation, (self.x, self.y))
+    
     def send_state(self, dt):
         """Sends the tank's current state to the server."""
         current_state = (self.rotation, self.rotation_signum, self.speed, self.driving_signum, (self.x, self.y))

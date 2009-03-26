@@ -7,6 +7,7 @@ from pyglet.window import key
 from cocos.sprite import Sprite
 import cocos.tiles
 from tank_battle.tank import Tank, PlayerTank, ComputerTank
+from tank_battle.bullet import Bullet
 import tiled2cocos
 
 
@@ -29,10 +30,10 @@ class TankBattleClient(GenericClientApp):
 
         self.scroller = cocos.tiles.ScrollingManager()
         
-        self.players_layer = cocos.tiles.ScrollableLayer()
+        self.sprites_layer = cocos.tiles.ScrollableLayer()
 
         self.scroller.add(self.current_map)
-        self.scroller.add(self.players_layer)
+        self.scroller.add(self.sprites_layer)
         
         scene = Scene(self.scroller)
         
@@ -52,6 +53,8 @@ class TankBattleClient(GenericClientApp):
     def on_key_press(self, k, modifier):
         if k == key.A:
             self.requestTankId()
+        elif k == key.SPACE and self.tank is not None:
+            self.tank.fire()
     
     def requestTankId(self):
         self.player.protocol.sendTankId()
@@ -68,12 +71,15 @@ class TankBattleClient(GenericClientApp):
             self.tank_layer.add(ai_tank)
     
     def serverTankRemove(self, id):
-        self.players_layer.remove(self.players[id])
+        self.sprites_layer.remove(self.players[id])
         del self.players[id]
     
     def serverTankState(self, id, rot, rot_signum, speed, driving_signum, pos):
         if id not in self.players:
             self.players[id] = Tank(id, pos, self)
-            self.players_layer.add(self.players[id])
+            self.sprites_layer.add(self.players[id])
             
         self.players[id].sync_state(rot, rot_signum, speed, driving_signum, pos)
+    
+    def serverFire(self, bullet_id, rotation, pos):
+        self.sprites_layer.add(Bullet(bullet_id, rotation, pos))

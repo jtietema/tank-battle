@@ -5,7 +5,8 @@ from tank_battle.server.game import TankBattleGame
 class TankBattleServer(GameServerApp):    
     def __init__(self, port):
         GameServerApp.__init__(self, port, TankBattleServerProtocol, TankBattleGame(self))
-        self.currentId = 0
+        self.lastTankId = 0
+        self.lastBulletId = 0
         self.last_known_states = {}
     
     def tankState(self, id, rot, rot_signum, speed, driving_signum, pos, source_player):
@@ -20,11 +21,11 @@ class TankBattleServer(GameServerApp):
         for id, state in self.last_known_states.items():
             player.protocol.sendTankState(id, *state)
         
-        self.currentId += 1
+        self.lastTankId += 1
         
-        print "Generated ID %d" % (self.currentId,)
+        print "Generated ID %d" % (self.lastTankId,)
         
-        player.protocol.sendTankId(self.currentId)
+        player.protocol.sendTankId(self.lastTankId)
     
     def tankRemove(self, id):
         if id in self.last_known_states:
@@ -32,3 +33,9 @@ class TankBattleServer(GameServerApp):
         
         for player in self.players:
             player.protocol.sendTankRemove(id)
+        
+    def fire(self, tank_id, rotation, pos):
+        self.lastBulletId += 1
+                
+        for player in self.players:
+            player.protocol.sendFire(self.lastBulletId, rotation, pos)

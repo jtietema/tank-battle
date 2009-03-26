@@ -15,6 +15,7 @@ class TankBattleServerProtocol(ServerProtocol):
         # register handles
         self.registerHandler(CS_TANK_STATE, self.onTankState)
         self.registerHandler(CS_TANK_ID, self.onTankId)
+        self.registerHandler(CS_REQUEST_FIRE, self.onFire)
     
     def onTankState(self,unpacker):
         id = unpacker.unpack_int()
@@ -32,6 +33,16 @@ class TankBattleServerProtocol(ServerProtocol):
         
     def onTankId(self, unpacker):
         return self.app.tankId(self.player)
+    
+    def onFire(self, unpacker):
+        tank_id = unpacker.unpack_int()
+        rotation = unpacker.unpack_float()
+        x = unpacker.unpack_float()
+        y = unpacker.unpack_float()
+        
+        self.app.fire(tank_id, rotation, (x, y))
+        
+        return True
     
     def sendTankState(self, id, rot, rot_signum, speed, driving_signum, (x, y)):
         packer = Packer()
@@ -72,4 +83,18 @@ class TankBattleServerProtocol(ServerProtocol):
         packer.pack_int(SC_TANK_REMOVE)
         packer.pack_int(id)
         self.writePacker(packer)
+    
+    def sendFire(self, bullet_id, rotation, (x, y)):
+        packer = Packer()
+        
+        print "[->] FIRE <rotation:%f, location(%f,%f)>" % (rotation, x, y)
+        
+        packer.pack_int(SC_FIRE)
+        packer.pack_int(bullet_id)
+        packer.pack_float(rotation)
+        packer.pack_float(x)
+        packer.pack_float(y)
+        
+        self.writePacker(packer)
+        
     
