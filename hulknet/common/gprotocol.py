@@ -1,4 +1,6 @@
 import xdrlib
+
+from hulknet.common.packer import Packer
 import struct
 
 from twisted.internet.protocol import Protocol
@@ -71,7 +73,7 @@ class GProtocol(Protocol):
         
     def sendError(self):
         print "Error:", self.errorId, self.errorMsg
-        packer = xdrlib.Packer()
+        packer = Packer()
         packer.pack_int(GProtocol.MSG_ERROR)
         packer.pack_int(self.errorId)
         packer.pack_string(self.errorMsg)

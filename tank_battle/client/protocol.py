@@ -1,5 +1,4 @@
-import xdrlib
-
+from hulknet.common.packer import Packer
 from hulknet.client.protocol import ClientProtocol
 from tank_battle.common.messages import *
 
@@ -40,8 +39,8 @@ class TankBattleClientProtocol(ClientProtocol):
         self.app.serverTankRemove(id)
         return True
     
-    def sendTankState(self, id, rot, rot_signum, speed, driving_signum, (x,y)):
-        packer = xdrlib.Packer()
+    def sendTankState(self, id, rot, rot_signum, speed, driving_signum, (x,y)):        
+        packer = Packer()
         
         packer.pack_int(CS_TANK_STATE)
         packer.pack_int(id)
@@ -55,6 +54,6 @@ class TankBattleClientProtocol(ClientProtocol):
         self.writePacker(packer)
     
     def sendTankId(self):
-        packer = xdrlib.Packer()
-        packer.pack_int(CS_TANK_ID)
+        packer = Packer()
+        packer.pack_int(CS_TANK_ID)        
         self.writePacker(packer)

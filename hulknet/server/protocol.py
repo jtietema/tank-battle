@@ -1,5 +1,4 @@
-import xdrlib
-
+from hulknet.common.packer import Packer
 from hulknet.common.gprotocol import GProtocol
 from hulknet.common.messages import *
 
@@ -28,13 +27,13 @@ class ServerProtocol(GProtocol):
         return self.app.hello(name, self.player)
     
     def sendPlayerLeave(self, playerName):
-        packer = xdrlib.Packer()
+        packer = Packer()
         packer.pack_int(SC_PLAYER_LEAVE)
         packer.pack_string(playerName)
         self.writePacker(packer)
     
     def sendPlayerJoin(self, playerName):
-        packer = xdrlib.Packer()
+        packer = Packer()
         packer.pack_int(SC_PLAYER_JOIN)
         packer.pack_string(playerName)
         self.writePacker(packer)

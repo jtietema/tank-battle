@@ -1,4 +1,4 @@
-import xdrlib
+from hulknet.common.packer import Packer
 
 from hulknet.common.gprotocol import GProtocol
 from hulknet.common.messages import *
@@ -40,7 +40,7 @@ class ClientProtocol(GProtocol):
     ### Message sender methods ###
 
     def sendHello(self, name):
-        packer = xdrlib.Packer()
+        packer = Packer()
         packer.pack_int(CS_HELLO)
         packer.pack_string(name)
         self.writePacker(packer)
