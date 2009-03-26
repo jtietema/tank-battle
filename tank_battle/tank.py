@@ -45,8 +45,6 @@ class Tank(Sprite):
         
         Sprite.__init__(self, 'tank.png', pos)
         
-        print dir(self)
-        
         # Unique ID to reference this tank through the network. Generated
         # by the server.
         self.id = id
@@ -79,8 +77,11 @@ class Tank(Sprite):
             self.x = target_x
             self.y = target_y
             return True
-        
-        return False
+        else:
+            # Reset the tank's speed, we've come to a sudden halt.
+            self.speed = 0
+            
+            return False
     
     def update(self, dt):
         """Since additional data comes in asynchronously, we interpolate by simply
@@ -202,8 +203,6 @@ class PlayerTank(Tank):
         # Make sure the rotation does not get larger than 360 degrees to decrease
         # network traffic.
         self.rotation = self.rotation % 360
-        
-        print self.width
         
         self.speed = self.calculate_speed(dt)
         
