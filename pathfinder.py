@@ -55,6 +55,7 @@ class Pathfinder(object):
     def setupPath(self, startX, startY, goalX, goalY):
         """setup the pathfinder to find a path.
         """
+        print 'setting up path from: ',startX,' ',startY,'  to ',goalX, goalY
         if self.cbValid(goalX, goalY) == 0:
             return 0
         
@@ -136,4 +137,5 @@ class Pathfinder(object):
             path.insert(0, (node.x, node.y))
             node = node.parent
         self.running = 0
+        print 'return path: ',path
         return path

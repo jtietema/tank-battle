@@ -15,6 +15,7 @@ class TankBattleClient(GenericClientApp):
         GenericClientApp.__init__(self,clientFactoryClass)
         self.players = {}
         self.tank_layer = None
+        self.tank = None
         self.computer_players = []
     
     def run(self):
@@ -58,11 +59,11 @@ class TankBattleClient(GenericClientApp):
     def serverTankID(self, id):
         if not self.tank_layer:
             self.tank_layer = cocos.tiles.ScrollableLayer()
-            tank = PlayerTank(id, ((self.current_map.px_width // 2), (self.current_map.px_height // 2)), self)
-            self.tank_layer.add(tank)
+            self.tank = PlayerTank(id, ((self.current_map.px_width // 2), (self.current_map.px_height // 2)), self)
+            self.tank_layer.add(self.tank)
             self.scroller.add(self.tank_layer)
         else:
-            ai_tank = ComputerTank(id, ((self.current_map.px_width // 2), (self.current_map.px_height // 2)), self)
+            ai_tank = ComputerTank(id, self.tank.position, self)
             self.computer_players.append(ai_tank)
             self.tank_layer.add(ai_tank)
     

@@ -216,8 +216,15 @@ class ComputerTank(Tank):
         Tank.__init__(self, id, pos, app)
         self.path = None
         self.dest = (0,0)
+        self.idest = None
         self.rot_dest = None
-        self.pathfinder = Pathfinder(self.is_valid_move)
+        self.pathfinder = Pathfinder(self.is_valid_cell)
+        dx, dy = self.dest
+        dcell = self.app.current_map.get_at_pixel(dx, dy)
+        x,y = self.position
+        print 'AI position: ',x,', ',y
+        cell = self.app.current_map.get_at_pixel(x, y)
+        self.pathfinder.setupPath(cell.i, cell.j, dcell.i, dcell.j)
     
     def update(self, dt):
         '''If there is a path follow it, otherwise calculate one'''
@@ -228,26 +235,32 @@ class ComputerTank(Tank):
     
     def do_move(self, dt):
         '''Does all the moving logic of the AI tank'''
-        if self.dest is None:
+        if self.idest is None:
             self.next_dest()
-        if self.dest is self.xy:
+        cell = self.app.current_map.get_at_pixel(*self.position)
+        cellij = (cell.i, cell.j)
+        print 'self:',cellij, ' idest:',self.idest
+        if self.idest == cellij:
             self.next_dest()
         else:
-            if self.rot_dest is self.rotation:
-                # do the moving
-                self.speed = 50
-                #self.move(dt)
-            elif self.rot_dest is None:
+            if self.rot_dest is None:
+                print 'calc rotate'
                 # calculate new rot_dest
                 self.calc_rotate()
+            elif int(self.rot_dest) is int(self.rotation):
+                # do the moving
+                self.speed = 50
+                self.move(dt)
             else:
                 # rotate some more
                 self.do_rotate()
+                print 'Rotation ',self.rot_dest,' ', self.rotation
     
     def calc_rotate(self):
         '''Calculate the new rotation to the destination'''
-        x, y = self.xy
-        dest_x, dest_y = self.dest
+        x, y = self.position
+        cell = self.app.current_map.get_cell(*self.idest)
+        dest_x, dest_y = cell.center
         # calculate the angle
         dx = abs(x - dest_x)
         dy = abs(y - dest_y)
@@ -273,7 +286,7 @@ class ComputerTank(Tank):
             delta_rot += 270
         
         # save the calculated new rotation in the class
-        self.dest_rot = delta_rot
+        self.rot_dest = delta_rot
 
     def do_rotate(self):
         '''Rotates the Tank (max 5 degrees per update)'''
@@ -281,20 +294,23 @@ class ComputerTank(Tank):
         if self.rotation > self.rot_dest:
             self.rotation -= rot # rotate left
         else:
-            self.rotatation += rot # rotate right
+            self.rotation += rot # rotate right
     
     def next_dest(self):
         '''Pick the next destination from the path queue (if present)'''
         if len(self.path) > 0:
             dest_ij = self.path.pop(0)
-            cell = self.app.current_map.get_cell(*dest_ij)
-            self.dest = cell.center
+            print 'next dest'
+            #cell = self.app.current_map.get_cell(*dest_ij)
+            #self.idest = cell.center
+            self.idest = dest_ij
             self.rot_dest = None
         else:
             self.path = None
     
     def find_path(self):
         '''Do pathfinding stuff'''
+        print 'find path'
         result = Pathfinder.NOT_DONE
         while result is Pathfinder.NOT_DONE:
             result = self.pathfinder.iteratePath()
@@ -304,9 +320,9 @@ class ComputerTank(Tank):
         if result is Pathfinder.IMPOSSIBLE:
             self.pathfinder = None
     
-    def is_valid_move(self, i,j):
+    def is_valid_cell(self, i,j):
         '''Checks if the tile is blocked (used by pathfinding code)'''
         cell = self.app.current_map.get_cell(i,j)
-        if 'blocked' in cell.tile.properties:
+        if cell is None or 'blocked' in cell.tile.properties:
             return False
         return True
