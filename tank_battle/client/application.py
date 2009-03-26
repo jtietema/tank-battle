@@ -52,9 +52,8 @@ class TankBattleClient(GenericClientApp):
             tank.update(dt)
         
     def remove_bullet(self, bullet_id):
-        print 'remove_bullet', bullet_id
-        self.sprites_layer.remove(self.bullets[id])
-        del self.bullets[id]
+        self.sprites_layer.remove(self.bullets[bullet_id])
+        del self.bullets[bullet_id]
     
     def on_key_press(self, k, modifier):
         if k == key.A:
