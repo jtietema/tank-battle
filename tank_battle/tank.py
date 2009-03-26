@@ -40,10 +40,12 @@ def signum(number):
 class Tank(Sprite):
     """A tank in the game."""
     
+    image_file = 'tank.png'
+    
     def __init__(self, id, pos, app):
         """Initializes a new tank sprite."""
         
-        Sprite.__init__(self, 'tank.png', pos)
+        Sprite.__init__(self, self.image_file, pos)
         
         # Unique ID to reference this tank through the network. Generated
         # by the server.
@@ -223,6 +225,8 @@ class PlayerTank(Tank):
         self.app.player.protocol.sendFire(self.id, self.rotation, (self.x, self.y))
     
 class ComputerTank(Tank):
+    image_file = 'ai-tank.png'
+    
     def __init__(self, id, pos, app):
         Tank.__init__(self, id, pos, app)
         self.path = None
