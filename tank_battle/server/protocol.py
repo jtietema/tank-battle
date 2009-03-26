@@ -9,7 +9,7 @@ class TankBattleServerProtocol(ServerProtocol):
         print "[<-] REQUEST_TANK_ID"
         
         # send a tank ID to the player
-        self.tank_id = None
+        self.tank_ids = []
         self.app.tankId(self.player)
         
         # register handles
@@ -48,9 +48,9 @@ class TankBattleServerProtocol(ServerProtocol):
         self.writePacker(packer)
     
     def sendTankId(self, id):
-        self.tank_id = id
+        self.tank_ids.append(id)
         
-        print "[->] TANK_ID #%d" % (self.tank_id,)
+        print "[->] TANK_ID #%d" % (id,)
         
         packer = Packer()
         packer.pack_int(SC_TANK_ID)
@@ -60,14 +60,14 @@ class TankBattleServerProtocol(ServerProtocol):
     def connectionLost(self, reason):
         ServerProtocol.connectionLost(self, reason)
         
-        print "[<-] REMOVE_TANK #%d" % (self.tank_id,)
-        
-        self.app.tankRemove(self.tank_id)
+        for id in self.tank_ids:
+            print "[<-] REMOVE_TANK #%d" % (id,)
+            self.app.tankRemove(id)
     
     def sendTankRemove(self, id):
         packer = Packer()
         
-        print "[->] REMOVE_TANK #%d" % (self.tank_id,)
+        print "[->] REMOVE_TANK #%d" % (id,)
         
         packer.pack_int(SC_TANK_REMOVE)
         packer.pack_int(id)
