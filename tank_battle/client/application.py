@@ -90,5 +90,5 @@ class TankBattleClient(GenericClientApp):
     
     def serverFire(self, bullet_id, rotation, pos):
         bullet = Bullet(bullet_id, rotation, pos, self)
-        self.bullets[id] = bullet
+        self.bullets[bullet_id] = bullet
         self.sprites_layer.add(bullet)
