@@ -126,11 +126,11 @@ class Tank(Sprite):
         call."""
         speed = self.speed
 
-        if speed is 0:
+        if speed == 0:
             max_speed = MAX_SPEEDS[self.driving_signum]
         else:
             max_speed = MAX_SPEEDS[signum(speed)]
-        if max_speed is 0:
+        if max_speed == 0:
             return 0
 
         time_factor = max_speed / 100
